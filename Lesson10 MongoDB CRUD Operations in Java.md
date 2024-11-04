@@ -99,3 +99,130 @@ Correct! We can use `InsertMany` to insert multile documents. Here's the syntax:
 ```java
 collection.insertMany(documents);
 ```
+
+# Querying a MongoDB Collection in Java Applications
+
+Retrieves information from a Collection.
+
+Using `Filters` will improve these operations
+
+## find()
+
+Using a `Cursor` can iterate throws the results
+
+```java
+MongoDatabase database = mongoClient.getDatabase("bank");
+MongoCollection<Document> collection = database.getCollection("accounts");
+try(MongoCursor<Document> cursor = collection.find(and(gte("balance", 1000),eq("account_type","checking"))).iterator()) {
+    while(cursor.hasNext()) {
+        System.out.println(cursor.next().toJson());
+    }
+}
+```
+
+## find.first()
+
+It will retrieve the first document.
+
+```java
+MongoDatabase database = mongoClient.getDatabase("bank");
+MongoCollection<Document> collection = database.getCollection("accounts");
+Document doc = collection.find(Filters.and(gte("balance", 1000), Filters.eq("account_type", "checking"))).first();
+System.out.println(doc.toJson());
+```
+
+# Quiz 1
+Which of the following can we use to query a MongoDB database in Java? (Select all that apply.)
+
+a. find()
+Correct! We can use the find() method to query for a document in a MongoDB database with Java. This allows us to read all of the data in the database. Here's an example:
+```java
+collection.find(Filters.and(gte("balance", 2000)));
+```
+
+c. find().first()
+Correct! We can use find().first() to query for the first document that matches a filter in a MongoDB database with Java. Here's an example:
+```java
+collection.find(Filters.and(lte("balance", 10000), Filters.eq("account_type","savings"))).first();
+```
+# Quiz 2
+Which of the following Java builder class helps with querying documents by using predicates? (Select one.)
+
+a. Filters
+Correct! The Filters builder class helps us define more efficient queries by using query predicates.
+
+# Updating Documents in Java Applications
+
+## updateOne(`<filter>`, `<update>`) -> Update the first document found by the filter
+
+Accepts a query filter and an update document
+
+### Updates.push()
+### Updates.pull()
+### Updates.popLast()
+
+```java
+MongoDatabase database = mongoClient.getDatabase("bank");
+MongoCollection<Document> collection = database.getCollection("accounts");
+Bson query  = Filters.eq("account_id","MDB12234728");
+Bson updates  = Updates.combine(Updates.set("account_status","active"),Updates.inc("balance",100));
+UpdateResult upResult = collection.updateOne(query, updates);
+```
+
+## updateMany(`<filter>`, `<update>`) -> Update many documents
+
+Update multiple documents in a single operation
+
+```java
+MongoDatabase database = mongoClient.getDatabase("bank");
+MongoCollection<Document> collection = database.getCollection("accounts");
+Bson query  = Filters.eq("account_type","savings");
+Bson updates  = Updates.combine(Updates.set("minimum_balance",100));
+UpdateResult upResult = collection.updateMany(query, updates);
+```
+# Quiz 1
+```json
+{
+   "account_id": "MDB310054629",
+   "account_holder": "John Doe",
+   "account_type": "savings",
+   "balance": 3977.14,
+   “account_status”: “active”
+},
+{
+   "account_id": "MDB12234728",
+   "account_holder": "Jane Doe",
+   "account_type": "checking",
+   "balance": 123.12,
+   “account_status”: “dormant”
+},
+{
+   "account_id": "MDB12234567",
+   "account_holder": "Will Jackson",
+   "account_type": "savings",
+   "balance": 1232.12,
+   “account_status”: “dormant”
+}
+```
+Question: When you run the following update, what is the result? (Select one.)
+
+```java
+Bson query  = Filters.eq("account_id","MDB12234728");
+Bson updates  = Updates.combine(Updates.set("account_status","active"),Updates.inc("balance",200));
+UpdateResult upResult = collection.updateOne(query, updates);
+```
+
+b. Jane Doe has a balance of 323.12 and an active account.
+Correct! The account_id matches Jane Doe's account_id, and the `updates` increase her balance by 200 and sets her account status to active.
+
+# Quiz 2
+Which of the following ways can you update document(s) in a MongoDB database? (Select all that apply.)
+
+a. UpdateOne
+Correct! We can use the `UpdateOne` method to update a document in a MongoDB database with Java. Here's the syntax:
+
+collection.updateOne(query, update);
+b. UpdateMany
+Correct! We can use the `UpdateMany` method to update multiple documents in a MongoDB database with Java. Here's the syntax
+
+collection.updateMany(query, update);
