@@ -226,3 +226,179 @@ b. UpdateMany
 Correct! We can use the `UpdateMany` method to update multiple documents in a MongoDB database with Java. Here's the syntax
 
 collection.updateMany(query, update);
+
+# Deleting Documents in Java Applications
+
+## deleteOne(<filter>) -> delete a single document from a collection, returns DeleteResult object with the information of the document deleted
+
+```java
+MongoDatabase database = mongoClient.getDatabase("bank");
+MongoCollection<Document> collection = database.getCollection("accounts");
+Bson query = Filters.eq("account_holder", "john doe");
+DeleteResult delResult = collection.deleteOne(query);
+System.out.println("Deleted a document:");
+System.out.println("\t" + delResult.getDeletedCount());
+```
+
+## deleteMany(<filter>) -> delete multiple documents in a single operation, return DeleteResult object wit the information of the documents deleted
+
+deleteMany using a empty query, it will delete all documents.
+
+```java
+MongoDatabase database = mongoClient.getDatabase("bank");
+MongoCollection<Document> collection = database.getCollection("accounts");
+Bson query = eq("account_status", "dormant");
+DeleteResult delResult = collection.deleteMany(query);
+System.out.println(delResult.getDeletedCount());
+```
+
+```java
+MongoDatabase database = mongoClient.getDatabase("bank");
+MongoCollection<Document> collection = database.getCollection("accounts");
+DeleteResult delResult = collection.deleteMany(Filters.eq("account_status", "dormant"));
+System.out.println(delResult.getDeletedCount());
+```
+
+# Quiz 1
+
+Use this dataset to answer the question that follows:
+
+```java
+{
+   "account_id": "MDB310054629",
+   "account_holder": "John Doe",
+   "account_type": "savings",
+   "balance": 3977.14,
+   “account_status”: “active”
+},
+{
+   "account_id": "MDB12234728",
+   "account_holder": "Jane Doe",
+   "account_type": "checking",
+   "balance": 123.12,
+   “account_status”: “dormant”
+},
+{
+   "account_id": "MDB12234567",
+   "account_holder": "Will Jackson",
+   "account_type": "savings",
+   "balance": 1232.12,
+   “account_status”: “dormant”
+}
+```
+
+Question: When you run the following update, what is the result? (Select one.)
+
+```java
+Bson query = Filters.eq("account_holder", "Will Jackson");
+DeleteResult delResult = collection.deleteOne(query);
+```
+
+Correct Answer
+
+John Doe and Jane Doe are the only two documents left in the collection.
+Correct! The filter matches `account_holder` and `Will Jackson` and deletes that document from the collection.
+
+# Quiz 2
+
+Which of the following ways can you delete document(s) MongoDB database in Java? (Select all that apply.)
+
+Correct Answer
+
+b. DeleteOne
+Correct! We can use the `DeleteOne` method to delete a document in a MongoDB database with Java. Here's the syntax:
+
+`collection.deleteOne(query);`
+
+c. DeleteMany
+Correct! We can use the `DeleteMany` method to delete multiple documents in a MongoDB database with Java. Here's the syntax:
+
+`collection.deleteMany(query);`
+
+# Creating MongoDB Transactions in Java Applications
+
+## Transactions 
+- A multi-document transaction is an operation that requires atomicity of reads and/or writes to multiple documents.
+- A transaction is a sequence of database operations that represent a single unit of work.
+- If the transaction is canceled or doesn't complete, all write operations performed are discarded.
+
+## ACID
+- Atomicity
+- Consistency
+- Isolation
+- Durability
+
+## Transaction steps:
+1. Start a client session
+2. Define the transaction options (optional)
+3. Define the sequence of operations to perform inside the transactions
+4. Start the transactions by using the ClientSession's `withTransaction()` method
+5. Release the resources used by the transaction
+
+### Remember:
+- There's a 60-second time limit
+- Close any resources the transaction may use
+
+```java
+final MongoClient client = MongoClients.create(connectionString);
+final ClientSession clientSession = client.startSession();
+
+TransactionBody txnBody = new TransactionBody<String>(){
+    public String execute() {
+        MongoCollection<Document> bankingCollection = client.getDatabase("bank").getCollection("accounts");
+
+        Bson fromAccount = eq("account_id", "MDB310054629");
+        Bson withdrawal = Updates.inc("balance", -200);
+
+        Bson toAccount = eq("account_id", "MDB643731035");
+        Bson deposit = Updates.inc("balance", 200);
+
+        System.out.println("This is from Account " + fromAccount.toBsonDocument().toJson() + " withdrawn " + withdrawal.toBsonDocument().toJson());
+        System.out.println("This is to Account " + toAccount.toBsonDocument().toJson() + " deposited " + deposit.toBsonDocument().toJson());
+        bankingCollection.updateOne(clientSession, fromAccount, withdrawal);
+        bankingCollection.updateOne(clientSession, toAccount, deposit);
+
+        return "Transferred funds from John Doe to Mary Doe";
+    }
+};
+
+try {
+    clientSession.withTransaction(txnBody);
+} catch (RuntimeException e){
+    System.out.println(e);
+}finally{
+    clientSession.close();
+}
+```
+
+## Quiz 1
+Transactions in MongoDB follow ACID principles.
+
+True
+
+## Quiz 2
+Use this code to answer the question that follows:
+
+```java
+public static void main(String[] args) {
+   String connectionString = System.getProperty("mongodb.uri");
+
+   final MongoClient client = MongoClients.create(connectionString);
+   final ClientSession clientSession = client.startSession();
+
+   TransactionBody txnBody = new TransactionBody<String>(){
+       public String execute() {
+       }
+   };
+   try {
+       clientSession.withTransaction(txnBody);
+   } catch (RuntimeException e){
+       System.out.println(e);
+   }finally{
+       clientSession.close();
+   }
+```
+Question: In this code, where should we call the CRUD operations to complete the transaction? (Select one.)
+
+Inside the `public String execute()` method
+Correct! We need to call the CRUD operations inside the `public String execute()` method.
