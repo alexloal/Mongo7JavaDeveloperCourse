@@ -239,7 +239,9 @@ Use `db.collection.countDocuments()` to count the number of documents that match
 `db.trips.countDocuments({})`
 
 `// Count number of trips over 120 minutes by subscribers`
-`db.trips.countDocuments({ tripduration: { $gt: 120 }, usertype: "Subscriber" })`
+```json lines
+db.trips.countDocuments({ tripduration: { $gt: 120 }, usertype: "Subscriber" })
+```
 
 
 ## Count All Documents in a Collection

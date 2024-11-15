@@ -181,7 +181,7 @@ Bson updates  = Updates.combine(Updates.set("minimum_balance",100));
 UpdateResult upResult = collection.updateMany(query, updates);
 ```
 # Quiz 1
-```json
+```json line
 {
    "account_id": "MDB310054629",
    "account_holder": "John Doe",

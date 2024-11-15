@@ -12,18 +12,18 @@
 - `$sort` Puts the documents in a specified order.
 
 ### Examples:
-```json
+```json lines
 $match: {
   "Student_id": 1234
 }
 ```
-```json
+```json lines
 $project: {
   total: { $sum: ["$quiz", "$homework"]}
 }
 ```
 
-```json
+```json lines
 $set {
   defaultUserName: {
     $concat: ["$first_name", "$last_name"]
@@ -42,7 +42,7 @@ $set {
 
 ## Annotation
 
-```json
+```json lines
 db.collection.aggregate([
   {
     $stage1: {
@@ -80,7 +80,7 @@ Correct!
 - Reduces the number of documents.
 - Less processing required.
 
-```json
+```json lines
 db.zips.aggregate([
   { $match: {"state": "CA"} }
 ])
@@ -91,7 +91,7 @@ db.zips.aggregate([
 - Groups documents by a group key.
 - Output is one document for each unique value of the group key.
 
-```json
+```json lines
 {
   $group: {
     _id: <expression>, // Group key
@@ -100,7 +100,7 @@ db.zips.aggregate([
 }
 ```
 
-```json
+```json lines
 {
   $group: {
     _id: "city", // Group key
@@ -108,7 +108,7 @@ db.zips.aggregate([
   }
 }
 ```
-```json
+```json lines
 db.zips.aggregate([
 {   
    $match: { 
@@ -141,7 +141,7 @@ You are now connected to an Atlas cluster and to the bird_data database. Use the
 
 6. Once you complete this lab, compare your answer to the correct answer in the Review and Solved Code section, then select Next.
 
-```json
+```json lines
 db.sightings.aggregate([
     {
         $match: {
@@ -159,7 +159,7 @@ db.sightings.aggregate([
 
 ## Quiz 1
 You have a collection that contains zip codes in the United States. Here’s a sample document from this collection:
-```json
+```json lines
 _id: ObjectId('5c8eccc1caa187d17ca6eea2')
 city: "EVERGREEN"
 zip: "36401"
@@ -171,7 +171,7 @@ state: "AL"
 ```
 What will the output of this aggregation pipeline be? (Select one.)
 
-```json
+```json lines
 db.zips.aggregate([
 {
    $match: { "state": "CA" }
@@ -191,7 +191,7 @@ In this example, the output is one document for each zip code because the group 
 
 ## Quiz 2
 You have a collection that contains zip codes in the United States. Here’s a sample document from this collection:
-```json
+```json lines
 _id: ObjectId('5c8eccc1caa187d17ca6eea2')
 city: "EVERGREEN"
 zip: "36401"
@@ -203,7 +203,7 @@ state: "AL"
 ```
 What will the output of this aggregation pipeline be? (Select one.)
 
-```json
+```json lines
 db.zips.aggregate([
 {
    $match: { "state": "TX" }
@@ -227,7 +227,7 @@ In this example, the output is one document for each city because the group key 
 - Sorts all input documents and passes them through pipeline in sorted order.
 - `1` Ascending order, `-1` Descending order.
 
-```json
+```json lines
 {
     $sort: {
         "field_name": 1
@@ -238,13 +238,13 @@ In this example, the output is one document for each city because the group key 
 ## `$limit`
 - Limits the number of documents that are passed on to the next aggregation stage.
 
-```json
+```json lines
 {
   $limit: 5
 }
 ```
 
-```json
+```json lines
 db.zips.aggregate([
   { $sort: { pop: -1 } },
   { $limit:  5 }
@@ -266,7 +266,7 @@ Use the sightings collection in this lab.
 4. Run your aggregation pipeline, and find out which birds have been sighted way up North!
 
 5. Once you complete this lab, compare your answer to the correct answer in the Review and Solved Code section, then select Next.
-```json
+```json lines
 db.sightings.aggregate([
     { $sort: { "location.coordinates.0": -1 }},
     { $limit: 4}
@@ -275,7 +275,7 @@ db.sightings.aggregate([
 
 ## Quiz 1
 You have a collection that contains zip codes in the United States. Here’s a sample document from this collection:
-```json
+```json lines
 _id: ObjectId('5c8eccc1caa187d17ca6eea2')
 city: "EVERGREEN"
 zip: "36401"
@@ -286,7 +286,7 @@ pop: 8556
 state: "AL"
 ```
 What will the output of this aggregation pipeline be? (Select one.)
-```json
+```json lines
 db.zips.aggregate([
   { $group: { "_id": "$pop" }},
   { $sort: { _id: -1 }}
@@ -306,7 +306,7 @@ In this example, we sorted by population in descending order meaning we return t
 
 ## Quiz 2
 You have a collection that contains all the zip codes in the United States. Here’s a sample document from this collection:
-```json
+```json lines
 _id: ObjectId('5c8eccc1caa187d17ca6eea2')
 city: "EVERGREEN"
 zip: "36401"
@@ -318,7 +318,7 @@ state: "AL"
 ```
 
 What will the output of this aggregation pipeline be? (Select one.)
-```json
+```json lines
 
 db.zips.aggregate([
   {$group: { "_id": "$pop" }},
@@ -342,7 +342,7 @@ The `$limit` stage limits the number of documents that are returned to `10`.
 - 0 to exclude.
 - new_value specified for new fields and existing fields being given a new value.
 
-```json
+```json lines
 $project {
   <field>: 1,
   <field>: 0,
@@ -351,7 +351,7 @@ $project {
 }
 ```
 Example:
-```json
+```json lines
 db.zips.aggregate([
   {
     $project: {
@@ -368,7 +368,7 @@ db.zips.aggregate([
 - Adds or modifies fields in the pipeline.
 - Useful when we want to change existing fields in pipeline or add new ones to be used in upcoming pipelines stages.
 
-```json
+```json lines
 $set {
   <field>: <value>,
   <field>: <value>,
@@ -378,7 +378,7 @@ $set {
 ```
 Example:
 
-```json
+```json lines
 db.zips.aggregate([
   {
     $set: {
@@ -396,7 +396,7 @@ db.zips.aggregate([
 - Counts documents in the pipeline.
 - Returns the total document count.
 
-```json
+```json lines
 db.zips.aggregate([
   {
     $count: "total_zips"
@@ -413,7 +413,7 @@ Use the `sightings` collection in this lab.
 2. Create a `$project` stage that just shows us the "date" and "species_common" field. Project out the "_id" field.
 3. Run your aggregation pipeline, and see the list of sightings!
 
-```json
+```json lines
 db.sightings.aggregate([{
     $project: {
         date: 1,
@@ -430,7 +430,7 @@ Use the `birds` collection in this lab.
 1. Create an aggregation pipeline on the `birds` collection. (Forgot the command or aggregation stages? Check thehint below!)
 2. Create a new field called `class` populated with the class of each of these animals, bird.
 3. Run your aggregation pipeline, and see that the `class` field has been added and set to "bird".
-```json
+```json lines
 db.birds.aggregate([{
     $set:{
         class: "bird"
@@ -448,7 +448,7 @@ Use the `sightings` collection in this lab.
 3. Create a stage to count how many sightings that includes.
 4. Run your aggregation pipeline, and see how many sightings of Eastern Bluebirds took place in 2022.
 
-```json
+```json lines
 db.sightings.aggregate([
     { 
         $match:{
@@ -485,14 +485,14 @@ The `$count` stage returns a document with a field named in the parameters with 
 - Creates a new collection if it does not already exist.
 - If collection exists, `$out` replaces the existing collection with new data.
 
-```json
+```json lines
 $out: {
   db: "<db>",
   coll: "<newcollection>"
 }
 ```
 
-```json
+```json lines
 { $out: "<newcollection>" }
 ```
 
@@ -510,7 +510,7 @@ Use the `sightings` collection in this lab.
 4. Run your aggregation pipeline.
 5. Run `db.sightings_2022.findOne()` to see if the new collection was created!
 
-```json
+```json lines
 db.sightings.aggregate([
     {
         $match: {
