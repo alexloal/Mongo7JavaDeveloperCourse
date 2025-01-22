@@ -542,3 +542,335 @@ Now use the explain query to review the execution plan.
 - If a query projects additional fields that we don't use to filter or sort by,
 we can include those fields at the end of the field list when we create the index.
 - This way we use the index to cover the query and avoid fetching the documents.
+
+## Working with Compound Indexes
+
+### Create a Compound Index
+
+Use `createIndex()` to create a new index in a collection. Within the parentheses of `createIndex()`, include an object 
+that contains two or more fields and their sort order.
+
+```json lines
+db.customers.createIndex({
+  active:1, 
+  birthdate:-1,
+  name:1
+})
+```
+
+### Order of Fields in a Compound Index
+
+The order of the fields matters when creating the index and the sort order. 
+It is recommended to list the fields in the following order: Equality, Sort, and Range.
+
+- Equality: field/s that matches on a single field value in a query
+- Sort: field/s that orders the results by in a query
+- Range: field/s that the query filter in a range of valid values
+
+The following query includes an equality match on the active field, a sort on birthday (descending) and name (ascending), and a range query on birthday too.
+
+```json lines
+db.customers.find({
+  birthdate: {
+    $gte:ISODate("1977-01-01")
+    },
+    active:true
+    }).sort({
+      birthdate:-1, 
+      name:1
+      })
+```
+Here's an example of an efficient index for this query:
+```json lines
+db.customers.createIndex({
+  active:1, 
+  birthdate:-1,
+  name:1
+})
+```
+### View the Indexes used in a Collection
+
+Use `getIndexes()` to see all the indexes created in a collection.
+```json lines
+db.customers.getIndexes()
+```
+
+### Check if an index is being used on a query
+
+Use `explain()` in a collection when running a query to see the Execution plan. This plan provides the details of the 
+execution stages (`IXSCAN`, `COLLSCAN`, `FETCH`, `SORT`, etc.). Some of these are:
+
+- The `IXSCAN` stage indicates the query is using an index and what index is being selected.
+- The `COLLSCAN` stage indicates a collection scan is perform, not using any indexes.
+- The `FETCH` stage indicates documents are being read from the collection.
+- The `SORT` stage indicates documents are being sorted in memory.
+
+```json lines
+db.customers.explain().find({
+  birthdate: {
+    $gte:ISODate("1977-01-01")
+    },
+  active:true
+  }).sort({
+    birthdate:-1,
+    name:1
+    })
+```
+
+### Cover a query by the Index
+
+An Index covers a query when MongoDB does not need to fetch the data from memory since all the required data is already 
+returned by the index.
+
+In most cases, we can use projections to return only the required fields and cover the query. Make sure those fields in 
+the projection are in the index.
+
+By adding the projection `{name:1,birthdate:1,_id:0}` in the previous query, we can limit the returned fields to only 
+`name` and `birthdate`. These fields are part of the index and when we run the `explain()` command, 
+the execution plan shows only two stages:
+
+- `IXSCAN` - Index scan using the compound index 
+- `PROJECTION_COVERED` - All the information needed is returned by the index, no need to fetch from memory
+
+```json lines
+db.customers.explain().find({
+  birthdate: {
+    $gte:ISODate("1977-01-01")
+    },
+  active:true
+  },
+  {name:1,
+    birthdate:1, 
+    _id:0
+  }).sort({
+    birthdate:-1,
+    name:1
+    })
+```
+
+### Quiz 1
+
+**What is a compound index? (Select one.)**
+
+C. An index that contains references to multiple fields within a document
+Correct!
+
+A compound index is an index that contains references to multiple fields within a document. Compound indexes are created 
+by adding a comma-separated list of fields and their corresponding sort order to the index definition.
+
+### Quiz 2
+
+**What is the recommended order of fields in a compound index? (Select one.)**
+
+C. Equality, Sort, Range
+Correct! The recommended order of indexed fields in a compound index is Equality, Sort, and Range. Optimized queries use 
+the first field in the index, Equality, to determine which documents match the query. The second field in the index, Sort, 
+is used to determine the order of the documents. The third field, Range, is used to determine which documents to include 
+in the result set.
+
+### Practice 1
+
+Creating a Compound Index and Using `explain()`
+
+In this lab, we will create a compound index on the `accounts` collection of the `bank` database. Additionally, we will 
+verify that the index was created and actively used in queries using the `explain()` method.
+
+![img_33.png](img_33.png)
+
+Lab Instructions
+
+1. Using the In the `mongosh`, create a compound index using the `account_holder`, `balance` and `account_type` fields 
+on the `accounts` collection where all fields are sorted in `ascending` order.
+
+```json lines
+bank> db.accounts.createIndex({'account_holder':1, 'balance':1, 'account_type':1})
+account_holder_1_balance_1_account_type_1
+```
+2. Use the `explain` method to confirm that the index is being used. Be sure to look at the winningPlan field in the 
+output as this contains information about the index that is being used. Here is a sample query you can use to confirm 
+the index is used:
+
+```json lines
+db.accounts.explain().find(
+  { account_holder: "Andrea", balance: { $gt: 5 } },
+  { account_holder: 1, balance: 1, account_type: 1, _id: 0 }
+).sort({ balance: 1 });
+```
+
+![img_34.png](img_34.png)
+
+We can see that the query was using a compound index. We can see that the compound index is being used by the presence 
+of the `indexBounds` property. Additionally, you can see that the `multikey` property is set to `false`. This means that 
+the compound index that we created is present and being used. You may also notice that the `FETCH` stage is not present 
+in the `winningPlan`. This is because we are only projecting fields that are in the index, so the `FETCH` stage can be 
+avoided.
+
+## Lesson 5: Deleting MongoDB Indexes
+
+### Impact of deleting an index
+
+- Indexes improve performance of the queries.
+- Indexes have a write cost. Every time it is inserted new documents or update them, the index keys need to be updated.
+- Too many indexes in a collection can affect the system performance.
+- We should delete unused or redundant indexes.
+
+- Before remove the index:
+- Make sure the index is not being used.
+- Deleting an index that's the only index supporting a query will affect the performance of the query.
+- We can delete any of the indexes in a collection except the default index on `_id`.
+- Recreating an index takes time and resources.
+- If we are not sure about the index, hide the index instead of deleting it.
+- To hide the index, we use the `db.collection.hideIndex(<index>)` command.
+- MongoDB does not use hidden indexes in queries but continues to update their keys.
+
+![img_35.png](img_35.png)
+
+The index `username_1` in the collection becomes redundant.
+
+### How to delete an index
+
+First, to get all indexes in the collection.
+
+![img_36.png](img_36.png)
+
+- The best practice to hide the index before deleting it.
+- This avoids having to recreate it later if we realize the index was needed for a query.
+- To hide an index can be specified by the index name or key.
+
+![img_37.png](img_37.png)
+
+- We can use the `dropIndex()` method on the collection.
+
+![img_38.png](img_38.png)
+
+- The number of elements indexed was 5 (grey)
+- The drop index was succeeded (yellow)
+
+![img_39.png](img_39.png)
+
+- We can remove an index using atlas UI.
+
+If we want to delete multiple indexes we can use `db.collection.dropIndexes()`
+- If we don't specify the indexes it will be deleted all the indexes expect the `_id` index.
+- We can specify 1 index `db.collection.dropIndexes('indexName')` 
+- We can specify more than 1 index `db.collection.dropIndexes(['index1', 'index2', ...])`
+
+### Deleting an Index
+
+### View the Indexes used in a Collection
+
+Use `getIndexes()` to see all the indexes created in a collection. There is always a default index in every collection 
+on `_id` field. This index is used by MongoDB internally and cannot be deleted.
+
+```json lines
+db.customers.getIndexes()
+```
+
+### Delete an Index
+
+Use `dropIndex()` to delete an existing index from a collection. Within the parentheses of `dropIndex()`, include an 
+object representing the index key or provide the index name as a string.
+
+Delete index by name:
+```json lines
+db.customers.dropIndex(
+  'active_1_birthdate_-1_name_1'
+)
+```
+Delete index by key:
+```json lines
+db.customers.dropIndex({
+  active:1,
+  birthdate:-1, 
+  name:1
+})
+```
+
+### Delete Indexes
+
+Use `dropIndexes()` to delete all the indexes from a collection, with the exception of the default index on `_id`.
+
+```json lines
+db.customers.dropIndexes()
+```
+The `dropIndexes()` command also can accept an array of index names as a parameter to delete a specific list of indexes.
+```json lines
+db.collection.dropIndexes([
+  'index1name', 'index2name', 'index3name'
+  ])
+```
+
+### Quiz 1
+
+**What are the ramifications of deleting an index that is supporting a query? (Select one.)**
+b. The performance of the query will be negatively affected
+Correct!
+
+The performance of the query will be negatively affected by the deletion of the only index that is currently supporting 
+that query. Indexes generally improve the performance and time efficiency of queries by reducing the number of times 
+that the database needs to be accessed.
+
+### Quiz 2
+**You have a collection of customer details. The following is a sample document from this collection:**
+```json lines
+{
+  "_id": { "$oid": "5ca4bbcea2dd94ee58162a6a" },
+  "username": "hillrachel",
+  "name": "Katherine David",
+  "address": "55711 Janet Plaza Apt. 865\nChristinachester, CT 62716",
+  "birthdate": { "$date": { "$numberLong": "582848134000" } },
+  "email": "timothy78@hotmail.com",
+  "Accounts": [
+    { "$numberInt": "462501" },
+    { "$numberInt": "228290" },
+    { "$numberInt": "968786" },
+    { "$numberInt": "515844" },
+    { "$numberInt": "377292" }
+  ],
+  "tier_and_details": {}
+}
+```
+**You have an index on the `email` field. Here’s the command you used to create the index:**
+```json lines
+db.customers.createIndex({email:1})
+```
+**Before deleting it, you want to assess the impact of removing this index on the performance of the query. 
+To do this, which command should you use? (Select one.)**
+
+D. hideIndex()
+Correct.
+
+The `hideIndex()` command hides an index. By hiding an index, you'll be able to assess the impact of removing the index 
+on query performance. MongoDB does not use hidden indexes in queries but continues to update their keys. This allows you 
+to assess if removing the index affects the query performance and unhide the index if needed. Unhiding an index is faster 
+than recreating it. In this example, you would use the command `db.customers.hideIndex({email:1})`.
+
+### Practice 1
+
+## Delete an Index
+
+In this lab, we will verify that a single field is using an index, and then delete that index. After deleting, we'll use 
+the `explain()` method to ensure that the index is no longer being used.
+
+Before you begin, please note that you are now connected to an Atlas cluster and the `bank` database. Use the `accounts` 
+collection for this lab.
+
+### Lab Instructions
+1. Run the following `explain()` command to verify that the `account_holder` field is using an `index` while being 
+sure to take a note of the `indexName`:
+```json lines
+db.accounts.explain().find({ account_holder: "Puja Barbier" })
+```
+![img_40.png](img_40.png)
+
+2. Delete the index on the `account_holder` field. (Forgot the command? Check the hints below!)
+```json lines
+db.accounts.dropIndex('account_holder_1')
+```
+![img_41.png](img_41.png)
+
+3. Run the following `explain()` method again to verify that the `account_holder` field is no longer using an index:
+```json lines
+db.accounts.explain().find({ account_holder: "Puja Barbier" })
+```
+![img_42.png](img_42.png)
