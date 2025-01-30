@@ -39,7 +39,7 @@ For example, a stage can filter documents, group documents, or calculate values.
 
 ## Example:
 
-![img_1.png](img_1.png)
+![img_1.png](Images/img_1.png)
 
 - Finds an account belonging to Puja Barbier, given an account number.
 
@@ -184,8 +184,8 @@ Correct! The `.Match` stage is used to match documents based on specified condit
 - Should be used as the last stage to format the output
 
 ## Example:
-![img.png](img.png)
-![img_2.png](img_2.png)
+![img.png](Images/img.png)
+![img_2.png](Images/img_2.png)
 - Find all checking accounts with a balance greater than 1500
 - Sort the results in descending order
 - Return only the original balance, Euro balance, account_type, and account_id fields

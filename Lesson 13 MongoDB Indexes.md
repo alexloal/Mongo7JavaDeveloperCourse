@@ -9,7 +9,7 @@
 - Ordered and easy to search efficiently
 - Point to the document identity
 
-![img_3.png](img_3.png)
+![img_3.png](Images/img_3.png)
 
 ### Costs of using indexes
 #### Indexes improve query performance:
@@ -38,8 +38,8 @@
 2. Compound
 3. Both indexes are multikey indexes operate on an array field
 
-![img_4.png](img_4.png)
-![img_5.png](img_5.png)
+![img_4.png](Images/img_4.png)
+![img_5.png](Images/img_5.png)
 
 Both queries can use this index
 
@@ -60,7 +60,7 @@ b. Indexes improve query performance at the cost of write performance.
 Indexes improve query performance at the cost of write performance. For most use cases, this tradeoff is acceptable. Indexes should be used on data that is frequently queried or on queries that are infrequent but costly in terms of computational resources.
 
 ### Practice 1
-![img_6.png](img_6.png)
+![img_6.png](Images/img_6.png)
 
 ## Lesson 2: Creating a Single Field Index in MongoDB
 
@@ -72,9 +72,9 @@ db.customers.createIndex({
 })
 ```
 
-![img_7.png](img_7.png)
+![img_7.png](Images/img_7.png)
 
-![img_8.png](img_8.png)
+![img_8.png](Images/img_8.png)
 
 ### Creating a single index in a unique field.
 
@@ -96,7 +96,7 @@ db.customers.createIndex({
 
 ### Identify indexes by using `getIndexes()`
 
-![img_9.png](img_9.png)
+![img_9.png](Images/img_9.png)
 
 - Show the indexes that are being used.
 
@@ -104,27 +104,27 @@ db.customers.createIndex({
 
 - To determine if any of these indexes are being used in a query, we use the `explain` command
 
-![img_10.png](img_10.png)
+![img_10.png](Images/img_10.png)
 
 - The `winningPlan` shows the index used in this query.
 
-![img_11.png](img_11.png)
+![img_11.png](Images/img_11.png)
 
 - Another query
 
-![img_12.png](img_12.png)
+![img_12.png](Images/img_12.png)
 
 - The winning plan only support the sort in the query.
 - In the `rejectedPlan` it's displayed the query supported.
 
-![img_13.png](img_13.png)
-![img_14.png](img_14.png)
+![img_13.png](Images/img_13.png)
+![img_14.png](Images/img_14.png)
 
 - Another query
-![img_15.png](img_15.png)
+![img_15.png](Images/img_15.png)
 
 - This is not supported by any indexes, the winning plan is a collection scan.
-![img_16.png](img_16.png)
+![img_16.png](Images/img_16.png)
 
 - Use `explain()` in a collection when running a query to see the Execution plan. 
 This plan provides the details of the execution stages (`IXSCAN`, `COLLSCAN`, `FETCH`, `SORT`, etc.).
@@ -229,7 +229,7 @@ Once you are using the accounts collection, run `db.accounts.findOne()` to view 
 
 **db.accounts.createIndex({'account_id':1},{unique:true})**
 
-![img_17.png](img_17.png)
+![img_17.png](Images/img_17.png)
 
 ### Use `explain()` to Verify that Indexes are Working
 
@@ -306,7 +306,7 @@ db.accounts.explain().find({'account_id':'MDB829000996'});
 
 ### How MongoDB works with array fields in an index
 
-![img_18.png](img_18.png)
+![img_18.png](Images/img_18.png)
 
 - It will be created a multikey index using these three fields.
 - Multikey indexes can index:
@@ -316,7 +316,7 @@ db.accounts.explain().find({'account_id':'MDB829000996'});
 - Can be single field or compound index
 - There is a limitation of only one array field per index
 
-![img_19.png](img_19.png)
+![img_19.png](Images/img_19.png)
 
 Here's an example of a search using a MultiKey index.
 
@@ -460,7 +460,7 @@ db.accounts.explain().find({'transfers_complete':'TR617907396'})
 
 Explaining better this last point
 
-![img_20.png](img_20.png)
+![img_20.png](Images/img_20.png)
 
 The indexes are ordered structures
 - The order of the fields in a compound index matters
@@ -473,33 +473,33 @@ The indexes are ordered structures
 - Reduces query processing time
 - Retrieves fewer documents
 
-![img_21.png](img_21.png)
+![img_21.png](Images/img_21.png)
 
 ### Sort
 - Determines the order of results
 - Index sort eliminates the need for in-memory sorts
 - Sort order is important if query results are sorted by more than 1 field and they mix sort orders
 
-![img_22.png](img_22.png)
+![img_22.png](Images/img_22.png)
 
 ### Range
 - Range filters scan fields
 - Range and Sort should be placed after equality in the index to avoid in-memory sort or filtering.
 
-![img_23.png](img_23.png)
+![img_23.png](Images/img_23.png)
 
 ### How to create a compound index
 
 Executing this query:
-![img_25.png](img_25.png)
+![img_25.png](Images/img_25.png)
 
 We can have the following results:
-![img_26.png](img_26.png)
+![img_26.png](Images/img_26.png)
 
 All results match the filter criteria.
 Now, we are going to explain the query to understand what MongoDB is doing to retrieve the data.
 
-![img_27.png](img_27.png)
+![img_27.png](Images/img_27.png)
 
 - MongoDB performs an index scan over one of the existing indexes -> `birthdate_1` (yellow)
 - Then it executes a fetch that uses a filter looking for the active customer -> `FETCH` (green)
@@ -509,7 +509,7 @@ We can improve the performance of the query by creating an index that better sup
 
 It creates an index with Equality first followed by Sort.
 
-![img_28.png](img_28.png)
+![img_28.png](Images/img_28.png)
 
 - The `active` field will be first because we query by using equality on this field.
 - `Birthdate` and `name` are placed next because we sort by these fields.
@@ -518,7 +518,7 @@ It creates an index with Equality first followed by Sort.
 
 Verify the new index it will run the explain query again.
 
-![img_29.png](img_29.png)
+![img_29.png](Images/img_29.png)
 
 - The winning plan shows the new index (yellow)
 - A fetch stage is performed based on the index results, resulting only in the necessary documents from the collection. (green)
@@ -527,17 +527,17 @@ Verify the new index it will run the explain query again.
 ### How to use a compound index to sort or cover queries
 To the previous query, we will add a projection in the find command to return only name and birthdate excluding the default _ID field.
 
-![img_31.png](img_31.png)
+![img_31.png](Images/img_31.png)
 
 Now use the explain query to review the execution plan.
 
-![img_32.png](img_32.png)
+![img_32.png](Images/img_32.png)
 
 - The compound index is being used (yellow)
 - There is no fetch stage because the index covers the projection (green)
 - This execution is faster than the one with no projection because there is no extra step to read the documents.
 
-![img_24.png](img_24.png)
+![img_24.png](Images/img_24.png)
 
 - If a query projects additional fields that we don't use to filter or sort by,
 we can include those fields at the end of the field list when we create the index.
@@ -675,7 +675,7 @@ Creating a Compound Index and Using `explain()`
 In this lab, we will create a compound index on the `accounts` collection of the `bank` database. Additionally, we will 
 verify that the index was created and actively used in queries using the `explain()` method.
 
-![img_33.png](img_33.png)
+![img_33.png](Images/img_33.png)
 
 Lab Instructions
 
@@ -697,7 +697,7 @@ db.accounts.explain().find(
 ).sort({ balance: 1 });
 ```
 
-![img_34.png](img_34.png)
+![img_34.png](Images/img_34.png)
 
 We can see that the query was using a compound index. We can see that the compound index is being used by the presence 
 of the `indexBounds` property. Additionally, you can see that the `multikey` property is set to `false`. This means that 
@@ -723,7 +723,7 @@ avoided.
 - To hide the index, we use the `db.collection.hideIndex(<index>)` command.
 - MongoDB does not use hidden indexes in queries but continues to update their keys.
 
-![img_35.png](img_35.png)
+![img_35.png](Images/img_35.png)
 
 The index `username_1` in the collection becomes redundant.
 
@@ -731,22 +731,22 @@ The index `username_1` in the collection becomes redundant.
 
 First, to get all indexes in the collection.
 
-![img_36.png](img_36.png)
+![img_36.png](Images/img_36.png)
 
 - The best practice to hide the index before deleting it.
 - This avoids having to recreate it later if we realize the index was needed for a query.
 - To hide an index can be specified by the index name or key.
 
-![img_37.png](img_37.png)
+![img_37.png](Images/img_37.png)
 
 - We can use the `dropIndex()` method on the collection.
 
-![img_38.png](img_38.png)
+![img_38.png](Images/img_38.png)
 
 - The number of elements indexed was 5 (grey)
 - The drop index was succeeded (yellow)
 
-![img_39.png](img_39.png)
+![img_39.png](Images/img_39.png)
 
 - We can remove an index using atlas UI.
 
@@ -861,16 +861,16 @@ sure to take a note of the `indexName`:
 ```json lines
 db.accounts.explain().find({ account_holder: "Puja Barbier" })
 ```
-![img_40.png](img_40.png)
+![img_40.png](Images/img_40.png)
 
 2. Delete the index on the `account_holder` field. (Forgot the command? Check the hints below!)
 ```json lines
 db.accounts.dropIndex('account_holder_1')
 ```
-![img_41.png](img_41.png)
+![img_41.png](Images/img_41.png)
 
 3. Run the following `explain()` method again to verify that the `account_holder` field is no longer using an index:
 ```json lines
 db.accounts.explain().find({ account_holder: "Puja Barbier" })
 ```
-![img_42.png](img_42.png)
+![img_42.png](Images/img_42.png)
