@@ -21,23 +21,23 @@ de superficie basados en un término de búsqueda.
 
 ### Components of a Search Index
 
-![img.png](img.png)
+![img.png](Images2/img.png)
 Se muestra información sobre los analizadores que se están utilizando, en la mayoría de los casos `lucene.standard`
 
-![img_1.png](img_1.png)
+![img_1.png](Images2/img_1.png)
 El tipo de correlación, ya sea dinámico o no.
 
-![img_2.png](img_2.png)
+![img_2.png](Images2/img_2.png)
 Opción para almacenar documetnos completos en memoria para un rendimiento posterior a la agregación.
 
-![img_3.png](img_3.png)
+![img_3.png](Images2/img_3.png)
 Y las correlaciones de campos.
 
 ## Quiz 1
 
 **Which type of search is depicted in the image below? (Select one.)**
 
-![img_4.png](img_4.png)
+![img_4.png](Images2/img_4.png)
 
 b. Relevance-based search in an application
 Correct.
@@ -49,7 +49,7 @@ returned were relevant to that search term.
 
 **Which part of this search index is the analyzer?**
 
-![img_5.png](img_5.png)
+![img_5.png](Images2/img_5.png)
 
 `lucene.standard`
 
@@ -70,20 +70,20 @@ returned were relevant to that search term.
   - Makes database queries more efficient
 - All fields indexed except (Booleans, ObjectIds and TimeStamps)
 
-![img_6.png](img_6.png)
-![img_7.png](img_7.png)
-![img_8.png](img_8.png)
+![img_6.png](Images2/img_6.png)
+![img_7.png](Images2/img_7.png)
+![img_8.png](Images2/img_8.png)
 
 ### Set option for dynamic mapping
-![img_9.png](img_9.png)
-![img_10.png](img_10.png)
+![img_9.png](Images2/img_9.png)
+![img_10.png](Images2/img_10.png)
 
 ### Test with a query
 Ahora se pueden ejecutar queries en la base de datos
-![img_11.png](img_11.png)
+![img_11.png](Images2/img_11.png)
 
 Para buscar todos las aves con plumas azules
-![img_12.png](img_12.png)
+![img_12.png](Images2/img_12.png)
 
 
 ## Practice 1
@@ -106,7 +106,7 @@ The final file should look like this:
     }
 }
 ```
-![img_13.png](img_13.png)
+![img_13.png](Images2/img_13.png)
 2. Navigate to the terminal tab at the top of the screen and run the following command to create the Atlas Search index:
 ```json lines
 atlas clusters search indexes create --clusterName myAtlasClusterEDU -f /app/search_index.json
@@ -118,7 +118,7 @@ atlas clusters search indexes list --clusterName myAtlasClusterEDU --db sample_s
 ```
 If the index has been created (or is in the process of being created) you should see output similar to the following in your terminal, the ID field value will differ:
 
-![img_14.png](img_14.png)
+![img_14.png](Images2/img_14.png)
 
 ## Using an Atlas Search Index With Dynamic Mapping
 
@@ -185,7 +185,7 @@ var result = db.sales.aggregate(pipeline)
 print(result)
 ```
 
-![img_15.png](img_15.png)
+![img_15.png](Images2/img_15.png)
 
 ```json lines
 load("/app/aggregation.js")
@@ -248,7 +248,7 @@ The field being queried are always the same
 Static indexing on specific fields makes the search quick and efficient by minimizing the number of fields to be indexed.
 
 Choose the field
-![img_16.png](img_16.png)
+![img_16.png](Images2/img_16.png)
 
 ### Lab Instructions 1 - Creating a Search Index with Static Field Mapping
 
@@ -390,8 +390,8 @@ Compound operators
 3. should
 4. filter
 
-![img_17.png](img_17.png)
-![img_18.png](img_18.png)
+![img_17.png](Images2/img_17.png)
+![img_18.png](Images2/img_18.png)
 
 The compound operator within the `$search` aggregation stage allows us to give weight to different field and also filter 
 our results without having to create additional aggregation stages. The four options for the compound operator are `must`, `mustNot`, `should`, and `filter`.
@@ -548,10 +548,10 @@ Types of data:
 2. Dates
 3. Strings
  
-![img_19.png](img_19.png)
+![img_19.png](Images2/img_19.png)
 
 It will be used `$searchMeta` -> Allows us to see the facets and how many results are in each bucket.
-![img_20.png](img_20.png)
+![img_20.png](Images2/img_20.png)
 
 `$searchMeta` is an aggregation stage for Atlas Search where the metadata related to the search is shown. 
 This means that if our search results are broken into buckets, using facet, we can see that in the `$searchMeta` stage, 
