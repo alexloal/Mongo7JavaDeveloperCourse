@@ -36,7 +36,7 @@ In most scenarios involving the transfer of value, inventory, or ownership of go
 
 * `updateOne()` operations update only one document, is technically an ACID transaction.
 
-![img.png](img.png)
+![img.png](Images3/img.png)
 
 ## When to use a Multi-document transaction in MongoDB
 
@@ -71,11 +71,11 @@ Nadia should use a multi-document transaction in this scenario. Unlike single-do
 ## Use a multi-document transaction with a session in the shell
 Given this account
 
-![img_1.png](img_1.png)
+![img_1.png](Images3/img_1.png)
 
 and this account
 
-![img_2.png](img_2.png)
+![img_2.png](Images3/img_2.png)
 
 * Session -> used to group database operations that are related to each other and should be run together.
 * A transaction has a maximum runtime of less than one minute after the first write.
@@ -83,27 +83,27 @@ and this account
 
 Create a session and a transaction:
 
-![img_3.png](img_3.png)
+![img_3.png](Images3/img_3.png)
 
 Create a variable to the account collection:
 
-![img_4.png](img_4.png)
+![img_4.png](Images3/img_4.png)
 
 The first operation:
 
-![img_5.png](img_5.png)
+![img_5.png](Images3/img_5.png)
 
 Update the other account:
 
-![img_6.png](img_6.png)
+![img_6.png](Images3/img_6.png)
 
 Commit the transaction:
 
-![img_7.png](img_7.png)
+![img_7.png](Images3/img_7.png)
 
 Verify the transaction:
 
-![img_8.png](img_8.png)
+![img_8.png](Images3/img_8.png)
 
 ## Abort a multi-document transaction in the shell
 
@@ -111,7 +111,7 @@ If we decide to abort the transaction we can use `.abortTransaction()` command.
 
 ## Transfer money between two accounts
 
-![img_9.png](img_9.png)
+![img_9.png](Images3/img_9.png)
 
 ## Practice 1
 
